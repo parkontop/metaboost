@@ -1,0 +1,27 @@
+const config = require("../config.json");
+
+module.exports = (client) => {
+  client.once("ready", async () => {
+    console.log("🟢 Dot task started...");
+
+    const sendDot = async () => {
+      for (const channelId of config.dotChannels) {
+        const channel = client.channels.cache.get(channelId);
+        if (!channel) continue;
+
+        try {
+          const msg = await channel.send({
+            content: ".",
+            allowedMentions: { parse: [] }
+          });
+          await msg.delete().catch(() => {});
+        } catch (err) {
+          console.error("❌ Error sending dot:", err.message);
+        }
+      }
+    };
+
+    await sendDot();
+    setInterval(sendDot, 60 * 60 * 1000);
+  });
+};
